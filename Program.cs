@@ -3,24 +3,30 @@ class Program
 {
     static void Main()
     {
+        DatabaseManager db = new DatabaseManager();
 
         while (true)
         {
-            Console.WriteLine("Välkommen till Jazzgossens MusikEmporuim");
             Console.WriteLine();
-            Console.WriteLine("1. Visa produkter.");
-            Console.WriteLine("2. köp & sälj.");
-            Console.WriteLine("3. Logga in.");
-            Console.WriteLine("4. Registrera dig.");
-            Console.WriteLine("5. Lägg till produkt.");
-            Console.WriteLine("6. Ta bort produkt.");
-            Console.WriteLine("7. Avsluta.");
+            Console.WriteLine("'Jazzgossens MusikEmporuim'");
+            Console.WriteLine();
+            Console.WriteLine("1. Show products.");
+            Console.WriteLine("2. Log in.");
+            Console.WriteLine("3. Register.");
+            Console.WriteLine("4. Buy & sell."); 
+            Console.WriteLine("5. Add product."); // skapa adminläge
+            Console.WriteLine("6. Delete produkt.");
+            Console.WriteLine("7. Add Campain.");
+            Console.WriteLine("8. Exit.");
             string choice = Console.ReadLine();
 
             switch (choice)
             {
                 case "1":
-                    
+                    db.GetAllProducts();
+
+                    // tba menyval köpa, söka, visa alla
+
                     break;
 
                 case "2":
@@ -43,12 +49,16 @@ class Program
                     break;
 
                 case "7":
+                    break;
+
+                case "8":
 
                     return;
 
                 default:
 
                     Console.WriteLine("Invalid choice");
+                    Console.ReadLine();
                     break;
             }
         }

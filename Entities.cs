@@ -11,13 +11,15 @@ class Kund
     public string Email { get; set; }
     public string Användarnamn { get; set; }
     public string Salt { get; set; }
+    //public bool Admin { get; set; } TODO adminläge 
 }
 
-class Product()
+class Produkt()
 {
     public int Id { get; set; }
     public string Artistnamn { get; set; }
     public string Albumnamn { get; set; }
+    public string Skivbolag { get; set; }
     public int Releasedatum { get; set; }
     public string Genre { get; set; }
     public string Format { get; set; }
