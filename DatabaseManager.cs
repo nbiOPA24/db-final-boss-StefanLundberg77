@@ -18,7 +18,7 @@ class DatabaseManager
     {
         // Hämta ut alla produkter från databasen till en lista
         using IDbConnection connection = Connect();
-        IEnumerable<Product> products = connection.Query<Product>("SELECT * FROM Produkt");
+        IEnumerable<Product> products = connection.Query<Product>("SELECT * FROM Product");
         Console.WriteLine();
 
         // Rubrik med skiljelinje
@@ -27,7 +27,7 @@ class DatabaseManager
         $"{"Sell Price",-12} {"Purchase Price",-15} {"Used",-8} {"Condition",-12} {"Stock",-10} {"Description",-15} "); // TODO bara visa Purchase price i adminläge
         Console.WriteLine(new string('-', 220));
 
-        // Listar upp tabellen med yes/no istället för true/false i begagnad
+        // Listar upp tabellen med yes/no istället för true/false i begagnad. TODO visa inte inköpspris om inte user är admin
         foreach (Product p in products)
         {
             Console.WriteLine(
@@ -41,7 +41,7 @@ class DatabaseManager
     {
         // Hämta ut alla produkter från databasen till en lista
         using IDbConnection connection = Connect();
-        IEnumerable<User> users = connection.Query<User>("SELECT * FROM Kund"); // inte *?
+        IEnumerable<User> users = connection.Query<User>("SELECT * FROM User"); // inte *?
         Console.WriteLine();
 
         Console.WriteLine(
@@ -58,16 +58,17 @@ class DatabaseManager
         return users;
     }
     public void AddUser(string firstName, string lastName, string address, string zipCode, DateOnly birthDate, string country, string email, string username, string password)
-    {
+    {   
+        string salt = "abcde"; // Tba
         using IDbConnection connection = Connect();
-        string query = $"INSERT INTO User (FirstName, LastName, Address, Birthdate, Country, Email, Username, Password) VALUES ('{firstName}', '{lastName}', '{birthDate}', '{address}', '{country}', '{zipCode} '{email}', '{username}', '{password})";
-        connection.Execute(query);
+        string query = $"INSERT INTO User (FirstName, LastName, Address, Birthdate, Country, Email, Username, Password, Salt) VALUES ('{firstName}', '{lastName}', '{birthDate}', '{address}', '{country}', '{zipCode} '{email}', '{username}', '{password}), '{salt}'";
+        connection.Execute(query); 
     }
     public IEnumerable<Product> SearchProducts()
     {
         using IDbConnection connection = Connect();
-        IEnumerable<Product> searchResult = connection.Query<Product>("SELECT xxx FROM Product" +;
-        );
+        IEnumerable<Product> searchResult = connection.Query<Product>("SELECT ? FROM Product");
         Console.WriteLine();
+        return searchResult;
     }
 }

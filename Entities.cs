@@ -10,8 +10,9 @@ class User
     public string Country { get; set; }
     public string Email { get; set; }
     public string Username { get; set; } // unik?
-    public string Password { get; set; } // Salt { get; set; }
-    //public bool Admin { get; set; } TODO adminläge 
+    public string Password { get; set; } // dölj när salt är fixat
+    public string Salt { get; set; } //generera salt
+    //public bool IsAdmin { get; set; } TODO adminläge 
     //public datetime DateOfRegistry { get; set; } ska man ha detta?
 }
 
@@ -35,13 +36,13 @@ class Product()
 class Order
 {
     public int Id { get; set; }
-    public int CustomerId { get; set; }
+    public int UserId { get; set; }
     public DateTime Date { get; set; }
     public decimal TotalAmount { get; set; }
-    public int StatusId { get; set; }
+    public int OrderStatusId { get; set; }
 }
 
-class Status
+class OrderStatus
 {
     public int Id { get; set; }
     public string Name { get; set; }
@@ -55,13 +56,13 @@ class OrderDetails // Singular form is acceptable
     public int OrderId { get; set; }
     public int Quantity { get; set; }
 }
-class Return
+class ReturnOrder
 {
     public int Id { get; set; }
     public int OrderDetailsId { get; set; }
     public string Reason { get; set; }
     public DateTime Date { get; set; }
-    public int Quantity { get; set; }
+    public int ReturnQuantity { get; set; }
 }
 
 class Discount
