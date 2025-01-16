@@ -5,6 +5,7 @@
 
 # dotenv files
 connectionString.txt
+Notes.txt
 .env
 
 # Sql-filer i projektet

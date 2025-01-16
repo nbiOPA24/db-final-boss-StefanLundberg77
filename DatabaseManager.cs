@@ -1,10 +1,8 @@
 using System.Data;
-// using Microsoft.Data;
-// using Microsoft.Data.SqlClient;
 using System.Data.SqlClient;
 using Dapper;
 
-namespace SkolProjekt;
+namespace ProjektDb;
 
 class DatabaseManager
 {
@@ -16,11 +14,11 @@ class DatabaseManager
         IDbConnection connection = new SqlConnection(connectionString);
         return connection;
     }
-    public IEnumerable<Produkt> GetAllProducts()
+    public IEnumerable<Product> GetAllProducts()
     {
         // Hämta ut alla produkter från databasen till en lista
         using IDbConnection connection = Connect();
-        IEnumerable<Produkt> produkter = connection.Query<Produkt>("SELECT * FROM Produkt");
+        IEnumerable<Product> products = connection.Query<Product>("SELECT * FROM Produkt");
         Console.WriteLine();
 
         // Rubrik med skiljelinje
@@ -30,12 +28,46 @@ class DatabaseManager
         Console.WriteLine(new string('-', 220));
 
         // Listar upp tabellen med yes/no istället för true/false i begagnad
-        foreach (Produkt p in produkter)
+        foreach (Product p in products)
         {
             Console.WriteLine(
-            $"{p.Id,-5} {p.Artistnamn,-20} {p.Albumnamn,-20} {p.Skivbolag,-20} {p.Releasedatum,-15} {p.Genre,-10} {p.Format,-10} " +
-            $"{p.Pris,-12:F2} {p.Inköpspris,-15:F2} {(p.Begagnad ? "Yes" : "No"),-8} {p.Skick,-12} {p.Lagersaldo,-10} {p.Beskrivning,-15} ");
+            $"{p.Id,-5} {p.ArtistName,-20} {p.AlbumName,-20} {p.RecordLabel,-20} {p.ReleaseDate,-15} {p.Genre,-10} {p.Format,-10} " +
+            $"{p.Price,-12:F2} {p.PurchasePrice,-15:F2} {(p.Used ? "Yes" : "No"),-8} {p.Condition,-12} {p.StockBalance,-10} {p.Description,-15} ");
         }
-        return produkter;
+        return products;
+    }
+
+    public IEnumerable<User> GetAllUsers()
+    {
+        // Hämta ut alla produkter från databasen till en lista
+        using IDbConnection connection = Connect();
+        IEnumerable<User> users = connection.Query<User>("SELECT * FROM Kund"); // inte *?
+        Console.WriteLine();
+
+        Console.WriteLine(
+        $"{"Id",-5} {"First Name",-15} {"Last Name",-15} {"Address",-20} {"Zip code",-10} {"Country",-15} " +
+        $"{"Birthdate",-5} {"Email",-25} {"Username",-15}");
+        Console.WriteLine(new string('-', 135));
+
+        foreach (User u in users)
+        {
+            Console.WriteLine(
+            $"{u.Id,-5} {u.FirstName,-15} {u.LastName,-15} {u.Address,-20} {u.ZipCode,-10} {u.Country,-15} " +
+            $"{u.BirthDate,-5} {u.Email,-25} {u.Username,-15}");
+        }
+        return users;
+    }
+    public void AddUser(string firstName, string lastName, string address, string zipCode, DateOnly birthDate, string country, string email, string username, string password)
+    {
+        using IDbConnection connection = Connect();
+        string query = $"INSERT INTO User (FirstName, LastName, Address, Birthdate, Country, Email, Username, Password) VALUES ('{firstName}', '{lastName}', '{birthDate}', '{address}', '{country}', '{zipCode} '{email}', '{username}', '{password})";
+        connection.Execute(query);
+    }
+    public IEnumerable<Product> SearchProducts()
+    {
+        using IDbConnection connection = Connect();
+        IEnumerable<Product> searchResult = connection.Query<Product>("SELECT xxx FROM Product" +;
+        );
+        Console.WriteLine();
     }
 }

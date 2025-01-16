@@ -1,83 +1,83 @@
-namespace SkolProjekt;
-class Kund
+namespace ProjektDb;
+class User
 {
     public int Id { get; set; }
-    public string Förnamn { get; set; }
-    public string Efternamn { get; set; }
-    public string Adress { get; set; }
-    public int Ålder { get; set; }
-    public string Postnummer { get; set; }
-    public string Land { get; set; }
+    public string FirstName { get; set; }
+    public string LastName { get; set; }
+    public string Address { get; set; }
+    public DateOnly BirthDate { get; set; } //  date i tabell
+    public string ZipCode { get; set; }
+    public string Country { get; set; }
     public string Email { get; set; }
-    public string Användarnamn { get; set; }
-    public string Salt { get; set; }
+    public string Username { get; set; } // unik?
+    public string Password { get; set; } // Salt { get; set; }
     //public bool Admin { get; set; } TODO adminläge 
+    //public datetime DateOfRegistry { get; set; } ska man ha detta?
 }
 
-class Produkt()
+class Product()
 {
     public int Id { get; set; }
-    public string Artistnamn { get; set; }
-    public string Albumnamn { get; set; }
-    public string Skivbolag { get; set; }
-    public int Releasedatum { get; set; }
-    public string Genre { get; set; }
-    public string Format { get; set; }
-    public decimal Pris { get; set; }
-    public decimal Inköpspris { get; set; }
-    public bool Begagnad { get; set; }
-    public string Skick { get; set; }
-    public string Beskrivning { get; set; }
-    public int Lagersaldo { get; set; }
+    public string ArtistName { get; set; } 
+    public string AlbumName { get; set; } 
+    public string RecordLabel { get; set; } 
+    public int ReleaseDate { get; set; } 
+    public string Genre { get; set; } 
+    public string Format { get; set; } 
+    public decimal Price { get; set; } 
+    public decimal PurchasePrice { get; set; } 
+    public bool Used { get; set; } 
+    public string Condition { get; set; } 
+    public int StockBalance { get; set; } 
+    public string Description { get; set; } 
 }
 
-class Order()
+class Order
 {
     public int Id { get; set; }
-    public int KundId { get; set; }
-    public DateTime Datum { get; set; }
-    public decimal Summa { get; set; }
+    public int CustomerId { get; set; }
+    public DateTime Date { get; set; }
+    public decimal TotalAmount { get; set; }
     public int StatusId { get; set; }
 }
 
-class Status()
+class Status
 {
     public int Id { get; set; }
-    public string Namn { get; set; }
+    public string Name { get; set; }
 }
 
-class OrderDetaljer() // plural?
+class OrderDetails // Singular form is acceptable
 {
     public int Id { get; set; }
-    public int ProduktId { get; set; }
-    public int RabattId { get; set; }
+    public int ProductId { get; set; }
+    public int DiscountId { get; set; }
     public int OrderId { get; set; }
-    public int Antal { get; set; }
+    public int Quantity { get; set; }
 }
-
-class Retur()
+class Return
 {
     public int Id { get; set; }
-    public int OrderDetaljerId { get; set; }
-    public string Orsak { get; set; }
-    public DateTime Datum { get; set; }
-    public int Antal { get; set; }
+    public int OrderDetailsId { get; set; }
+    public string Reason { get; set; }
+    public DateTime Date { get; set; }
+    public int Quantity { get; set; }
 }
 
-class Rabatt()
+class Discount
 {
     public int Id { get; set; }
-    public decimal Värde { get; set; }
-    public string Typ { get; set; }
+    public decimal Value { get; set; }
+    public string Type { get; set; }
 }
 
-class Kampanj()
+class Campaign
 {
     public int Id { get; set; }
-    public string Namn { set; get; }
-    public DateTime Start { get; set; }
-    public DateTime Slut { get; set; }
-    public string Beskrivning { get; set; }
+    public string Name { get; set; }
+    public DateTime Start { get; set; } // = DateTime.Now;
+    public DateTime End { get; set; }
+    public string Description { get; set; }
     public bool Status { get; set; }
-    public int RabattId { get; set; }
+    public int DiscountId { get; set; }
 }
