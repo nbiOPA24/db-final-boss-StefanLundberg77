@@ -4,15 +4,16 @@ class User
     public int Id { get; set; }
     public string FirstName { get; set; }
     public string LastName { get; set; }
+    public DateTime BirthDate { get; set; } //  date i tabell
     public string Address { get; set; }
-    public DateOnly BirthDate { get; set; } //  date i tabell
     public string ZipCode { get; set; }
+    public string City { get; set; }
     public string Country { get; set; }
     public string Email { get; set; }
     public string Username { get; set; } // unik?
-    public string Password { get; set; } // dölj när salt är fixat
+    //public string Password { get; set; } // dölj när salt är fixat
     public string Salt { get; set; } //generera salt
-    //public bool IsAdmin { get; set; } TODO adminläge 
+    public bool IsAdmin { get; set; } //TODO adminläge 
     //public datetime DateOfRegistry { get; set; } ska man ha detta?
 }
 

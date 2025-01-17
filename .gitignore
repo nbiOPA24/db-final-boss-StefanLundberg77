@@ -6,6 +6,7 @@
 # dotenv files
 connectionString.txt
 Notes.txt
+vaultOfSecrets.txt
 .env
 
 # Sql-filer i projektet

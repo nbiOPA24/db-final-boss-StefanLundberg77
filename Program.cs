@@ -1,4 +1,6 @@
-﻿namespace ProjektDb;
+﻿
+
+namespace ProjektDb;
 class Program
 {
     static void Main()
@@ -13,6 +15,7 @@ class Program
             Console.WriteLine("1. Shop.");
             Console.WriteLine("2. Log in.");
             Console.WriteLine("3. Register.");
+            Console.WriteLine("4. View all users.");
             Console.WriteLine("5. Add product."); // skapa adminläge eller en adminmeny?
             Console.WriteLine("6. Delete produkt.");
             Console.WriteLine("7. Add Campaign.");
@@ -31,16 +34,16 @@ class Program
                     Console.WriteLine("6. Back.");
                     Console.WriteLine("7. Exit.");
                     // tba menyval köpa, söka, visa alla, sortera
-                    string input = Console.ReadLine();
+                    string shopChoice = Console.ReadLine();
                     bool shopMenu = true;
                     while (shopMenu)
                     {
-                        if (input == "1")
+                        if (shopChoice == "1")
                         {
                             db.GetAllProducts();
-                            //break;
+                            break;
                         }
-                        else if (input == "2")
+                        else if (shopChoice == "2")
                         {
                             Console.WriteLine("Search by:");
                             Console.WriteLine("1. Artist.");
@@ -56,8 +59,10 @@ class Program
                             {
                                 if (searchOption == "1")
                                 {
+                                    string searchOptionChoice = "ArtistName";
                                     Console.Write("Enter Artist name:"); // tex. sökning på första 3 bokstäver
-                                    db.SearchProducts();
+                                    string searchInput = Misc.ReadString().ToLower();
+                                    db.SearchProducts(searchOptionChoice, searchInput);
                                 }
                                 else if (searchOption == "2")
                                 {
@@ -89,23 +94,23 @@ class Program
                                 }
                             }
                         }
-                        else if (input == "3")
+                        else if (shopChoice == "3")
                         {
 
                         }
-                        else if (input == "4")
+                        else if (shopChoice == "4")
                         {
 
                         }
-                        else if (input == "5")
+                        else if (shopChoice == "5")
                         {
 
                         }
-                        else if (input == "6")
+                        else if (shopChoice == "6")
                         {
                             shopMenu = false;
                         }
-                        else if (input == "7")
+                        else if (shopChoice == "7")
                         {
                             break;
                         }
@@ -115,8 +120,33 @@ class Program
                         }
                     }
                     break;
+
                 case "2":
-                    // search by ex. artistname
+                    //Misc.LogIn();
+                    Console.WriteLine("1. View profile.");
+                    Console.WriteLine("2. Edit profile.");
+                    Console.WriteLine("3. Back.");
+                    Console.WriteLine("4. Exit.");
+                    int logInMenuChoice = Misc.ReadInt();
+                    bool logInMenu = true;
+                    while (logInMenu)
+                    {
+                        if (logInMenuChoice == 1)
+                        {
+
+                        }
+                        else if (logInMenuChoice == 2)
+                        {
+                            Console.WriteLine();
+                        }
+                        else if (logInMenuChoice == 3)
+                        { }
+                        else if (logInMenuChoice == 4)
+                        { }
+
+                    }
+
+
                     break;
 
                 case "3":
@@ -124,37 +154,41 @@ class Program
                     // Lägg till en ny user
                     // Läsa in relevant input från user
                     Console.Write("Insert first name: ");
-                    string firstName = Console.ReadLine();
+                    string firstName = Misc.ReadString().ToLower();
 
                     Console.Write("Insert last name: ");
-                    string lastName = Console.ReadLine();
+                    string lastName = Misc.ReadString().ToLower();
 
                     Console.Write("Insert address: ");
-                    string address = Console.ReadLine();
+                    string address = Misc.ReadString().ToLower(); // commit to lower.. dvs piff
 
                     Console.Write("Insert zip code: ");
-                    string zipCode = Console.ReadLine();
+                    string zipCode = Console.ReadLine().ToLower();
+
+                    Console.Write("Insert City: ");
+                    string city = Console.ReadLine().ToLower();
 
                     Console.Write("Insert country: ");
-                    string country = Console.ReadLine();
+                    string country = Console.ReadLine().ToLower();
 
                     Console.Write("Insert Date of birth (yyyy-MM-dd): "); // lägg till try catch för omvandling
-                    DateOnly birthDate = Misc.ReadDate();
+                    DateTime birthDate = Misc.ReadDate();
 
                     Console.Write("Insert email: ");
-                    string email = Console.ReadLine();
+                    string email = Console.ReadLine().ToLower();
 
                     Console.Write("Select username: ");
                     string username = Console.ReadLine();
 
                     Console.Write("Select password: ");
-                    string password = Console.ReadLine();
+                    string password = Misc.PasswordEncryption();
 
-                    db.AddUser(firstName, lastName, address, zipCode, birthDate, country, email, username, password);
+                    
+                    db.AddUser(firstName, lastName, address, zipCode, city, country, birthDate, email, username);
                     break;
 
                 case "4":
-
+                    db.GetAllUsers();
                     break;
 
                 case "5":

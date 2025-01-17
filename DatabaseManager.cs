@@ -2,6 +2,8 @@ using System.Data;
 using System.Data.SqlClient;
 using Dapper;
 
+
+
 namespace ProjektDb;
 
 class DatabaseManager
@@ -10,7 +12,7 @@ class DatabaseManager
     {
         string connectionString = File.ReadAllText("connectionString.txt");
 
-        // anslut till databasen med hjälp av connection string
+        // anslut till databasen med hjälp av connectionstring.txt
         IDbConnection connection = new SqlConnection(connectionString);
         return connection;
     }
@@ -39,35 +41,72 @@ class DatabaseManager
 
     public IEnumerable<User> GetAllUsers()
     {
-        // Hämta ut alla produkter från databasen till en lista
+        // Hämta ut alla User från databasen till en lista
         using IDbConnection connection = Connect();
-        IEnumerable<User> users = connection.Query<User>("SELECT * FROM User"); // inte *?
+        IEnumerable<User> users = connection.Query<User>("SELECT * FROM [User]"); // inte *?
         Console.WriteLine();
 
         Console.WriteLine(
-        $"{"Id",-5} {"First Name",-15} {"Last Name",-15} {"Address",-20} {"Zip code",-10} {"Country",-15} " +
-        $"{"Birthdate",-5} {"Email",-25} {"Username",-15}");
-        Console.WriteLine(new string('-', 135));
+        $"{"Id",-5} {"First Name",-15} {"Last Name",-15} {"Address",-20} {"Zip code",-10} {"City",-15} {"Country",-15} " + // måste ju ha city
+        $"{"Birthdate",-15} {"Email",-25} {"Username",-15}");
+        Console.WriteLine(new string('-', 180));
 
         foreach (User u in users)
         {
+            string dateOnlyBirthDate = u.BirthDate.ToString("yyyy-MM-dd");
             Console.WriteLine(
-            $"{u.Id,-5} {u.FirstName,-15} {u.LastName,-15} {u.Address,-20} {u.ZipCode,-10} {u.Country,-15} " +
-            $"{u.BirthDate,-5} {u.Email,-25} {u.Username,-15}");
+            $"{u.Id,-5} {u.FirstName,-15} {u.LastName,-15} {u.Address,-20} {u.ZipCode,-10} {u.City,-15} {u.Country,-15} " +
+            $"{dateOnlyBirthDate,-15} {u.Email,-25} {u.Username,-15}");
         }
         return users;
     }
-    public void AddUser(string firstName, string lastName, string address, string zipCode, DateOnly birthDate, string country, string email, string username, string password)
-    {   
-        string salt = "abcde"; // Tba
+    public void AddUser(string firstName, string lastName, string address, string zipCode, string city, string country, DateTime birthDate, string email, string username)
+    {
+
+        string salt = "abcde"; // TBA fixa sen
         using IDbConnection connection = Connect();
-        string query = $"INSERT INTO User (FirstName, LastName, Address, Birthdate, Country, Email, Username, Password, Salt) VALUES ('{firstName}', '{lastName}', '{birthDate}', '{address}', '{country}', '{zipCode} '{email}', '{username}', '{password}), '{salt}'";
-        connection.Execute(query); 
+
+        string query = @"INSERT INTO [User] 
+        (FirstName, LastName, Address, ZipCode, City, Country, BirthDate, Email, Username, Salt) 
+        VALUES 
+        (@FirstName, @LastName, @Address, @ZipCode, @City, @Country, @BirthDate, @Email, @Username, @Salt)";
+
+
+        //birthDate.ToString("yyyy-MM-dd"), // Konvertera `DateOnly` till korrekt format
+        connection.Execute(query, new
+        {
+            FirstName = firstName, LastName = lastName, Address = address, ZipCode = zipCode, City = city,
+            Country = country, BirthDate = birthDate, Email = email, Username = username, Salt = salt,
+        });
+
     }
-    public IEnumerable<Product> SearchProducts()
+    //testar... ska kunna byta mail
+    public void UpdateUser(int id, string LastName, string email, string username)
     {
         using IDbConnection connection = Connect();
-        IEnumerable<Product> searchResult = connection.Query<Product>("SELECT ? FROM Product");
+
+        // if {} input = null gör ingenting eller bättre lösning
+        // Spara i datbasen
+        string query = $" UPDATE [User] SET Name = '{LastName}', Email = '{email}', Username = '{username}' WHERE Id = {id}";
+        connection.Execute(query);
+    }
+    // TODO
+    public bool IsAdmin(string username)
+    {
+        using IDbConnection connection = Connect();
+        string query = "SELECT IsAdmin FROM [User] WHERE Username = @Username";
+        bool isAdmin = connection.QuerySingleOrDefault<bool>(query, new { Username = username });
+        if (isAdmin == null)
+        {
+            throw new InvalidOperationException("Användaren hittades inte");
+        }
+        return isAdmin;
+    }
+    // WORK IN PROGRESS
+    public IEnumerable<Product> SearchProducts(string searchOptionChoice, string searchInput)
+    {
+        using IDbConnection connection = Connect();
+        IEnumerable<Product> searchResult = connection.Query<Product>($"SELECT '{searchOptionChoice}' FROM Product where ArtistName = '{searchInput}'");
         Console.WriteLine();
         return searchResult;
     }
