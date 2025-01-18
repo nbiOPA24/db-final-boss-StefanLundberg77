@@ -60,24 +60,26 @@ class DatabaseManager
         }
         return users;
     }
-    public void AddUser(string firstName, string lastName, string address, string zipCode, string city, string country, DateTime birthDate, string email, string username)
+    public void AddUser(string firstName, string lastName, string address, string zipCode, string city, string country, DateTime birthDate, string email, string username, byte[] passwordHash, byte[] passwordSalt)
     {
 
-        string salt = "abcde"; // TBA fixa sen
+        Console.WriteLine("Hash length: " + passwordHash.Length); // Borde vara 32 bytes för SHA-256
+        Console.WriteLine("Salt length: " + passwordSalt.Length);
         using IDbConnection connection = Connect();
 
         string query = @"INSERT INTO [User] 
-        (FirstName, LastName, Address, ZipCode, City, Country, BirthDate, Email, Username, Salt) 
+        (FirstName, LastName, Address, ZipCode, City, Country, BirthDate, Email, Username, PasswordHash, PasswordSalt) 
         VALUES 
-        (@FirstName, @LastName, @Address, @ZipCode, @City, @Country, @BirthDate, @Email, @Username, @Salt)";
+        (@FirstName, @LastName, @Address, @ZipCode, @City, @Country, @BirthDate, @Email, @Username, @PasswordHash, @PasswordSalt)";
 
 
         //birthDate.ToString("yyyy-MM-dd"), // Konvertera `DateOnly` till korrekt format
         connection.Execute(query, new
         {
-            FirstName = firstName, LastName = lastName, Address = address, ZipCode = zipCode, City = city,
-            Country = country, BirthDate = birthDate, Email = email, Username = username, Salt = salt,
+            FirstName = firstName, LastName = lastName, Address = address, ZipCode = zipCode, City = city, Country = country,
+            BirthDate = birthDate, Email = email, Username = username, PasswordHash = passwordHash, PasswordSalt = passwordSalt
         });
+        Console.WriteLine("testing testing");
 
     }
     //testar... ska kunna byta mail
@@ -89,6 +91,14 @@ class DatabaseManager
         // Spara i datbasen
         string query = $" UPDATE [User] SET Name = '{LastName}', Email = '{email}', Username = '{username}' WHERE Id = {id}";
         connection.Execute(query);
+    }
+    public IEnumerable<User> VerifyPass(string inputUsername, string inputPassword)
+    {
+        // Hämta ut alla User från databasen till en lista
+        using IDbConnection connection = Connect();
+        IEnumerable<User> hash = connection.Query<User>("SELECT PasswordHash, PasswordSalt FROM [User] WHERE Username = "); // inte *?
+        Console.WriteLine();
+
     }
     // TODO
     public bool IsAdmin(string username)

@@ -1,8 +1,9 @@
 using System.Collections;
+using System.Data.Common;
 using System.Security.Cryptography;
 
 namespace ProjektDb;
-static class Misc
+public static class Misc
 {
     public static DateTime ReadDate() // dateToString kanske
     {
@@ -43,39 +44,37 @@ static class Misc
     {
         using (var rng = new RNGCryptoServiceProvider())
         {
-            byte[] salt = new byte[size];
-            rng.GetBytes(salt);
-            return salt;
+            byte[] passwordSalt = new byte[size];
+            rng.GetBytes(passwordSalt);
+            return passwordSalt;
         }
     }
-
-    static byte[] HashPasswordWithSalt(string password, byte[] salt)
+    static byte[] HashPasswordWithSalt(string password, byte[] passwordSalt)
     {
-        using (var pbkdf2 = new Rfc2898DeriveBytes(password, salt, 100000, HashAlgorithmName.SHA256))
+        using (var pbkdf2 = new Rfc2898DeriveBytes(password, passwordSalt, 100000, HashAlgorithmName.SHA256))
         {
             return pbkdf2.GetBytes(32); // Hashens storlek (32 bytes för SHA-256)
         }
     }
-    static (byte[] hashedPassword, byte[] salt) PasswordEncryption(string password)
-    {     
+    public static (byte[] passwordHash, byte[] passwordSalt) PasswordEncryption(string password)
+    {
         // Slumpa fram salten
-        byte[] salt = GenerateSalt(16); // 16 bytes
-
+        byte[] passwordSalt = GenerateSalt(16); // 16 bytes
         // Hasha ihop lösenordet och salten
-        byte[] hashedPassword = HashPasswordWithSalt(password, salt);
-
-        // 4. Skriv ut resultatet
-        Console.WriteLine("Salt: " + BitConverter.ToString(salt).Replace("-", ""));
-        Console.WriteLine("Hashed password: " + BitConverter.ToString(hashedPassword).Replace("-", ""));
-
-        return (hashedPassword, salt);
+        byte[] passwordHash = HashPasswordWithSalt(password, passwordSalt);
+        return (passwordHash, passwordSalt);
 
     }
-    static bool VerifyPassword(string inputPassword, byte[] storedHash, byte[] storedSalt)
+    public static bool LogIn()
     {
-
-        byte[] inputHashedPassword = HashPasswordWithSalt(inputpassword, salt);
-        if(StructuralComparisons.StructuralEqualityComparer.Equals(hashedPassword, inputHashedPassword))
+        Console.Write("Enter username: ");
+        string inputUsername = Console.ReadLine();
+        Console.Write("Enter password: ");
+        string inputpassword = Console.ReadLine();
+        DatabaseManager.VerifyPass(inputUsername, inputpassword);
+        
+        byte[] inputPasswordHash = HashPasswordWithSalt(inputpassword, salt);
+        if (StructuralComparisons.StructuralEqualityComparer.Equals(hashedPassword, inputHashedPassword))
         {
             Console.WriteLine("Lösenordet är korrekt!");
         }
@@ -83,10 +82,9 @@ static class Misc
         {
             Console.WriteLine("Lösenordet är felaktigt!");
         }
-        // string inputpassword = Console.ReadLine();
     }
-    static bool LogIn()
-    {
+    // static bool LogIn()
+    // {
 
-    }
+    // }
 }
