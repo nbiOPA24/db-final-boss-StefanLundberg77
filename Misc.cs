@@ -1,5 +1,3 @@
-
-using System.Data.Common;
 using System.Security.Cryptography;
 
 using ProjektDb;
@@ -70,6 +68,7 @@ public static class Misc
         
         while (true)
         {
+            Console.WriteLine();
             Console.Write("Enter username: ");
             string inputUsername = Console.ReadLine();
             Console.Write("Enter password: ");
@@ -81,6 +80,7 @@ public static class Misc
                     Program.userLoggedIn = inputUsername;
                     Program.userLoggedInIsAdmin = isAdmin;
                     Console.WriteLine($"Welcome, {inputUsername}! You are logged in {(isAdmin ? "as admin" : "as user")}.");
+                    Console.WriteLine();
                     return;
                 }
                 else

@@ -13,13 +13,13 @@ class Program
             Console.WriteLine();
             Console.WriteLine("1. Shop");
             Console.WriteLine("2. Profile (Register, log in or manage account)");
-            Console.WriteLine("3. Register");
             if (userLoggedIn != null && userLoggedInIsAdmin)
             {
+                Console.WriteLine("3. ?");
                 Console.WriteLine("4. View all users");
                 Console.WriteLine("5. Add product"); // skapa adminläge eller en adminmeny?
                 Console.WriteLine("6. Delete produkt");
-                Console.WriteLine("7. Add Campaign");
+                Console.WriteLine("7. Discounts");
                 Console.WriteLine("8. Manage orders");
             }
             Console.WriteLine("Q. Exit");
@@ -31,6 +31,7 @@ class Program
                     bool shopMenu = true;
                     while (shopMenu)
                     {   
+                        Console.WriteLine();
                         Console.WriteLine("'Shop Menu'");
                         Console.WriteLine("1. View all products");
                         Console.WriteLine("2. Search products");
@@ -49,7 +50,8 @@ class Program
                         {
                             bool searchMenu = true;
                             while (searchMenu)
-                            {   
+                            {      
+                                Console.WriteLine();
                                 Console.WriteLine("'Search Menu'");
                                 Console.WriteLine("Search by:");
                                 Console.WriteLine("1. Artist.");
@@ -68,21 +70,13 @@ class Program
                                     db.SearchProducts(searchOptionChoice, searchInput);
                                 }
                                 else if (searchOption == "2")
-                                {
-
-                                }
+                                {}
                                 else if (searchOption == "3")
-                                {
-
-                                }
+                                {}
                                 else if (searchOption == "4")
-                                {
-
-                                }
+                                {}
                                 else if (searchOption == "5")
-                                {
-
-                                }
+                                {}
                                 else if (searchOption == "6")
                                 {
                                     searchMenu = false;
@@ -98,17 +92,11 @@ class Program
                             }
                         }
                         else if (shopChoice == "3")
-                        {
-
-                        }
+                        {}
                         else if (shopChoice == "4")
-                        {
-
-                        }
+                        {}
                         else if (shopChoice == "5")
-                        {
-
-                        }
+                        {}
                         else if (shopChoice == "6")
                         {
                             shopMenu = false;
@@ -128,6 +116,7 @@ class Program
                     bool profileMenu = true;
                     while (profileMenu)
                     {   
+                        Console.WriteLine();
                         Console.WriteLine("'Profile Menu'");
                         Console.WriteLine("1. Register");
                         Console.WriteLine("2. Log in");
@@ -182,11 +171,13 @@ class Program
                         }
                         else if (profileChoice == "3")
                         {
-                            db.GetUser(userLoggedIn);
+                            DatabaseManager.GetUser(userLoggedIn, db);
                         }
                         else if (profileChoice == "4")
                         {
-
+                            db.EditUser(userLoggedIn, db);
+                            Console.WriteLine("Log in to continue!");
+                            Misc.LogIn(db);
                         }
                         else if (profileChoice == "5")
                         {

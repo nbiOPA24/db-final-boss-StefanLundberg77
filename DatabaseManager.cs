@@ -35,9 +35,9 @@ public class DatabaseManager
         }
         return products;
     }
-    public void GetUser(string userLoggedIn)
+    public static User? GetUser(string userLoggedIn, DatabaseManager db)
     {
-        using IDbConnection connection = Connect();
+        using IDbConnection connection = db.Connect();
         var user = connection.QuerySingleOrDefault<User>(
             @"SELECT Id, FirstName, LastName, Address, ZipCode, City, Country, BirthDate, Email, Username 
           FROM [User] WHERE Username = @Username", new { Username = userLoggedIn });
@@ -51,8 +51,8 @@ public class DatabaseManager
 
 
             string dateOnlyBirthDate = user.BirthDate.ToString("yyyy-MM-dd");
-            Console.WriteLine(
-            $"{user.Id,-5} {user.FirstName,-15} {user.LastName,-15} {user.Address,-20} {user.ZipCode,-10} {user.City,-15} {user.Country,-15} " +
+
+            Console.WriteLine($"{user.Id,-5} {user.FirstName,-15} {user.LastName,-15} {user.Address,-20} {user.ZipCode,-10} {user.City,-15} {user.Country,-15} " +
             $"{dateOnlyBirthDate,-15} {user.Email,-25} {user.Username,-15}");
 
         }
@@ -60,6 +60,8 @@ public class DatabaseManager
         {
             Console.WriteLine("Log in required.");
         }
+        Console.WriteLine();
+        return user;
     }
 
     public IEnumerable<User> GetAllUsers()
@@ -81,20 +83,18 @@ public class DatabaseManager
             $"{u.Id,-5} {u.FirstName,-15} {u.LastName,-15} {u.Address,-20} {u.ZipCode,-10} {u.City,-15} {u.Country,-15} " +
             $"{dateOnlyBirthDate,-15} {u.Email,-25} {u.Username,-15}");
         }
+        Console.WriteLine();
         return users;
     }
     public void AddUser(string firstName, string lastName, string address, string zipCode, string city, string country, DateTime birthDate, string email, string username, byte[] passwordHash, byte[] passwordSalt)
     {
-
         using IDbConnection connection = Connect();
-
+        
+        // ev. lägga till transaction
         string query = @"INSERT INTO [User] 
         (FirstName, LastName, Address, ZipCode, City, Country, BirthDate, Email, Username, PasswordHash, PasswordSalt) 
         VALUES 
         (@FirstName, @LastName, @Address, @ZipCode, @City, @Country, @BirthDate, @Email, @Username, @PasswordHash, @PasswordSalt)";
-
-
-        //birthDate.ToString("yyyy-MM-dd")
         connection.Execute(query, new
         {
             FirstName = firstName,
@@ -110,17 +110,100 @@ public class DatabaseManager
             PasswordSalt = passwordSalt
         });
         Console.WriteLine("testing testing");
-
     }
-    //testar... ska kunna byta mail
-    public void UpdateUser(int id, string LastName, string email, string username)
+    //testar... ska kunna byta mail osv
+    public void EditUser(string userLoggedIn, DatabaseManager db)
     {
         using IDbConnection connection = Connect();
+        // plockar upp user från GetUser
+        User? user = GetUser(userLoggedIn, db);
+        Console.WriteLine("1. First Name:");
+        Console.WriteLine("2. Last Name:");
+        Console.WriteLine("3. Address:");
+        Console.WriteLine("4. Zip Code:");
+        Console.WriteLine("5. City:");
+        Console.WriteLine("6. Country:");
+        Console.WriteLine("7. Email:");
+        Console.WriteLine("8. Password");
+        Console.Write("What info would you like to change? Enter number: ");
+        string choice;
 
-        // if {} input = null gör ingenting eller bättre lösning
-        // Spara i datbasen
-        string query = $" UPDATE [User] SET Name = '{LastName}', Email = '{email}', Username = '{username}' WHERE Id = {id}";
-        connection.Execute(query);
+        // Uppdateringsdictionary (lista) kolla grupparbetet..
+        var update = new Dictionary<string, object>();
+        while ((choice = Console.ReadLine().ToLower()) != "q")
+        {
+            switch (choice)
+            {
+                case "1":
+                    Console.Write("Enter new First Name: ");
+                    update["FirstName"] = Console.ReadLine();
+                    break;
+
+                case "2":
+                    Console.Write("Enter new Last Name: ");
+                    update["LastName"] = Console.ReadLine();
+                    break;
+
+                case "3":
+                    Console.Write("Enter new Address: ");
+                    update["Address"] = Console.ReadLine();
+                    break;
+
+                case "4":
+                    Console.Write("Enter new Zip Code: ");
+                    update["ZipCode"] = Console.ReadLine();
+                    break;
+
+                case "5":
+                    Console.Write("Enter new City: ");
+                    update["City"] = Console.ReadLine();
+                    break;
+
+                case "6":
+                    Console.Write("Enter new Country: ");
+                    update["Country"] = Console.ReadLine();
+                    break;
+
+                case "7":
+                    Console.Write("Enter new Email: ");
+                    update["Email"] = Console.ReadLine();
+                    break;
+
+                case "8":
+                    Console.Write("Enter new Password: ");
+                    string newPassword = Console.ReadLine();
+                    (byte[] passwordHash, byte[] passwordSalt) = Misc.PasswordEncryption(newPassword);
+                    update["PasswordHash"] = passwordHash;
+                    update["PasswordSalt"] = passwordSalt;
+                    break;
+
+                default:
+                    Console.WriteLine("Invalid choice. Please try again.");
+                    break;
+            }
+            Console.WriteLine("Enter number to continue editing or 'Q' to finish:");
+        }
+
+        // dynamisk uppdatering av tabellrad
+        if (update.Count > 0)
+        {
+            string updateQuery = "UPDATE [User] SET ";
+            foreach (var field in update.Keys)
+            {
+                updateQuery += $"{field} = @{field}, ";
+            }
+            updateQuery = updateQuery.TrimEnd(',', ' '); // tar bort slutkommat så det inte crashar
+            updateQuery += " WHERE Username = @Username";
+
+            update["Username"] = userLoggedIn; // Lägg till Username som parameter
+            connection.Execute(updateQuery, update);
+
+            Console.WriteLine("User updated!");
+        }
+        else
+        {
+            Console.WriteLine("No changes applied.");
+        }
     }
     public bool VerifyUser(string inputUsername, string inputPassword, out bool isAdmin)
     {
