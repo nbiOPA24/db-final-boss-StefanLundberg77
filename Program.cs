@@ -28,37 +28,38 @@ class Program
             {
                 case "1":
 
-                    Console.WriteLine("1. View all products");
-                    Console.WriteLine("2. Search products");
-                    Console.WriteLine("3. Sort by");
-                    Console.WriteLine("4. Purchase");
-                    Console.WriteLine("5. Sell");
-                    Console.WriteLine("6. Back");
-                    Console.WriteLine("Q. Exit");
-                    // tba menyval köpa, söka, visa alla, sortera
-                    string shopChoice = Console.ReadLine().ToUpper();
                     bool shopMenu = true;
                     while (shopMenu)
-                    {
+                    {   
+                        Console.WriteLine("'Shop Menu'");
+                        Console.WriteLine("1. View all products");
+                        Console.WriteLine("2. Search products");
+                        Console.WriteLine("3. Sort by");
+                        Console.WriteLine("4. Purchase");
+                        Console.WriteLine("5. Sell");
+                        Console.WriteLine("6. Back");
+                        Console.WriteLine("Q. Exit");
+                        // tba menyval köpa, söka, visa alla, sortera
+                        string shopChoice = Console.ReadLine().ToUpper();
                         if (shopChoice == "1")
                         {
                             db.GetAllProducts();
-                            break;
                         }
                         else if (shopChoice == "2")
                         {
-                            Console.WriteLine("Search by:");
-                            Console.WriteLine("1. Artist.");
-                            Console.WriteLine("2. Album.");
-                            Console.WriteLine("3. Record Company.");
-                            Console.WriteLine("4. Format.");
-                            Console.WriteLine("5. Used.");
-                            Console.WriteLine("6. Back.");
-                            Console.WriteLine("Q. Exit.");
-                            string searchOption = Console.ReadLine().ToUpper();
                             bool searchMenu = true;
                             while (searchMenu)
-                            {
+                            {   
+                                Console.WriteLine("'Search Menu'");
+                                Console.WriteLine("Search by:");
+                                Console.WriteLine("1. Artist.");
+                                Console.WriteLine("2. Album.");
+                                Console.WriteLine("3. Record Company.");
+                                Console.WriteLine("4. Format.");
+                                Console.WriteLine("5. Used.");
+                                Console.WriteLine("6. Back.");
+                                Console.WriteLine("Q. Exit.");
+                                string searchOption = Console.ReadLine().ToUpper();
                                 if (searchOption == "1")
                                 {
                                     string searchOptionChoice = "ArtistName";
@@ -88,7 +89,7 @@ class Program
                                 }
                                 else if (searchOption == "Q")
                                 {
-                                    break;
+                                    return;
                                 }
                                 else
                                 {
@@ -124,16 +125,18 @@ class Program
                     break;
 
                 case "2":
-                    Console.WriteLine("1. Register");
-                    Console.WriteLine("2. Log in");
-                    Console.WriteLine("3. View profile");
-                    Console.WriteLine("4. Edit profile");
-                    Console.WriteLine("5. Back");
-                    Console.WriteLine("Q. Exit");
-                    string profileChoice = Console.ReadLine().ToUpper();
                     bool profileMenu = true;
                     while (profileMenu)
-                    {
+                    {   
+                        Console.WriteLine("'Profile Menu'");
+                        Console.WriteLine("1. Register");
+                        Console.WriteLine("2. Log in");
+                        Console.WriteLine("3. View profile");
+                        Console.WriteLine("4. Edit profile");
+                        Console.WriteLine("5. Back");
+                        Console.WriteLine("Q. Exit");
+                        string profileChoice = Console.ReadLine().ToUpper();
+
                         if (profileChoice == "1")
                         {
                             // Lägg till en ny user
@@ -176,17 +179,16 @@ class Program
                         else if (profileChoice == "2")
                         {
                             Misc.LogIn(db);
-                            break;
                         }
                         else if (profileChoice == "3")
                         {
                             db.GetUser(userLoggedIn);
                         }
-                        else if (profileChoice == "3")
+                        else if (profileChoice == "4")
                         {
-                            
+
                         }
-                        else if (profileChoice == "3")
+                        else if (profileChoice == "5")
                         {
                             profileMenu = false;
                         }

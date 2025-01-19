@@ -92,7 +92,7 @@ public static class Misc
             {
                 Console.WriteLine("Login failedUsername or password incorrect!"); //"Login failed"
             }
-            Console.WriteLine("Press 'ENTER' to try again or 'Q' to quit.");
+            Console.WriteLine("Press 'ENTER' to try again or 'Q' to return to profile menu.");
             string choice = Console.ReadLine().ToUpper();
             if (choice == "Q")
             {

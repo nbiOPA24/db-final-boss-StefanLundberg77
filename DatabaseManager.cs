@@ -36,31 +36,31 @@ public class DatabaseManager
         return products;
     }
     public void GetUser(string userLoggedIn)
-{
-    using IDbConnection connection = Connect();
-    var user = connection.QuerySingleOrDefault<User>(
-        @"SELECT FirstName, LastName, Address, ZipCode, City, Country, BirthDate, Email, Username 
+    {
+        using IDbConnection connection = Connect();
+        var user = connection.QuerySingleOrDefault<User>(
+            @"SELECT Id, FirstName, LastName, Address, ZipCode, City, Country, BirthDate, Email, Username 
           FROM [User] WHERE Username = @Username", new { Username = userLoggedIn });
 
-    if (user != null)
-    {
-        Console.WriteLine(
-        $"{"Id",-5} {"First Name",-15} {"Last Name",-15} {"Address",-20} {"Zip code",-10} {"City",-15} {"Country",-15} " + // måste ju ha city
-        $"{"Birthdate",-15} {"Email",-25} {"Username",-15}");
-        Console.WriteLine(new string('-', 180));
+        if (user != null)
+        {
+            Console.WriteLine(
+            $"{"Id",-5} {"First Name",-15} {"Last Name",-15} {"Address",-20} {"Zip code",-10} {"City",-15} {"Country",-15} " + // måste ju ha city
+            $"{"Birthdate",-15} {"Email",-25} {"Username",-15}");
+            Console.WriteLine(new string('-', 180));
 
-        
+
             string dateOnlyBirthDate = user.BirthDate.ToString("yyyy-MM-dd");
             Console.WriteLine(
             $"{user.Id,-5} {user.FirstName,-15} {user.LastName,-15} {user.Address,-20} {user.ZipCode,-10} {user.City,-15} {user.Country,-15} " +
             $"{dateOnlyBirthDate,-15} {user.Email,-25} {user.Username,-15}");
-        
+
+        }
+        else
+        {
+            Console.WriteLine("Log in required.");
+        }
     }
-    else
-    {
-        Console.WriteLine("User not found.");
-    }
-    }   
 
     public IEnumerable<User> GetAllUsers()
     {
@@ -125,14 +125,14 @@ public class DatabaseManager
     public bool VerifyUser(string inputUsername, string inputPassword, out bool isAdmin)
     {
         using IDbConnection connection = Connect();
-        var verify = connection.QuerySingleOrDefault<(bool IsAdmin, byte[] PasswordHash, byte[] PasswordSalt)>("SELECT IsAdmin, PasswordHash, PasswordSalt FROM [User] WHERE Username = @Username", new { Username = inputUsername});
+        var verify = connection.QuerySingleOrDefault<(bool IsAdmin, byte[] PasswordHash, byte[] PasswordSalt)>("SELECT IsAdmin, PasswordHash, PasswordSalt FROM [User] WHERE Username = @Username", new { Username = inputUsername });
         isAdmin = verify.IsAdmin;
         byte[] passwordHash = verify.PasswordHash;
         byte[] passwordSalt = verify.PasswordSalt;
         byte[] inputHash = Misc.HashPasswordWithSalt(inputPassword, passwordSalt);
         return isAdmin || passwordHash.SequenceEqual(inputHash);
     }
-    
+
     // WORK IN PROGRESS
     public IEnumerable<Product> SearchProducts(string searchOptionChoice, string searchInput)
     {
