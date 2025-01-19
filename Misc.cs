@@ -1,11 +1,11 @@
-using System.Collections;
+
 using System.Data.Common;
 using System.Security.Cryptography;
 
-namespace ProjektDb;
+using ProjektDb;
 public static class Misc
 {
-    public static DateTime ReadDate() // dateToString kanske
+    public static DateTime ReadDate()
     {
         DateTime input;
         while (!DateTime.TryParse(Console.ReadLine(), out input))
@@ -49,7 +49,7 @@ public static class Misc
             return passwordSalt;
         }
     }
-    static byte[] HashPasswordWithSalt(string password, byte[] passwordSalt)
+    public static byte[] HashPasswordWithSalt(string password, byte[] passwordSalt)
     {
         using (var pbkdf2 = new Rfc2898DeriveBytes(password, passwordSalt, 100000, HashAlgorithmName.SHA256))
         {
@@ -65,26 +65,41 @@ public static class Misc
         return (passwordHash, passwordSalt);
 
     }
-    public static bool LogIn()
+    public static void LogIn(DatabaseManager db)
     {
-        Console.Write("Enter username: ");
-        string inputUsername = Console.ReadLine();
-        Console.Write("Enter password: ");
-        string inputpassword = Console.ReadLine();
-        DatabaseManager.VerifyPass(inputUsername, inputpassword);
         
-        byte[] inputPasswordHash = HashPasswordWithSalt(inputpassword, salt);
-        if (StructuralComparisons.StructuralEqualityComparer.Equals(hashedPassword, inputHashedPassword))
+        while (true)
         {
-            Console.WriteLine("Lösenordet är korrekt!");
-        }
-        else
-        {
-            Console.WriteLine("Lösenordet är felaktigt!");
+            Console.Write("Enter username: ");
+            string inputUsername = Console.ReadLine();
+            Console.Write("Enter password: ");
+            string inputPassword = Console.ReadLine();
+            try
+            {
+                if (db.VerifyUser(inputUsername, inputPassword, out bool isAdmin))
+                {
+                    Program.userLoggedIn = inputUsername;
+                    Program.userLoggedInIsAdmin = isAdmin;
+                    Console.WriteLine($"Welcome, {inputUsername}! You are logged in {(isAdmin ? "as admin" : "as user")}.");
+                    return;
+                }
+                else
+                {
+                    Console.WriteLine("Username or password incorrect!");
+                }
+            }
+            catch
+            {
+                Console.WriteLine("Login failedUsername or password incorrect!"); //"Login failed"
+            }
+            Console.WriteLine("Press 'ENTER' to try again or 'Q' to quit.");
+            string choice = Console.ReadLine().ToUpper();
+            if (choice == "Q")
+            {
+                return;
+            }
         }
     }
-    // static bool LogIn()
-    // {
-
-    // }
 }
+
+

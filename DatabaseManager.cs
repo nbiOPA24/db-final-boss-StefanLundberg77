@@ -2,11 +2,8 @@ using System.Data;
 using System.Data.SqlClient;
 using Dapper;
 
-
-
 namespace ProjektDb;
-
-class DatabaseManager
+public class DatabaseManager
 {
     private IDbConnection Connect()
     {
@@ -38,6 +35,32 @@ class DatabaseManager
         }
         return products;
     }
+    public void GetUser(string userLoggedIn)
+{
+    using IDbConnection connection = Connect();
+    var user = connection.QuerySingleOrDefault<User>(
+        @"SELECT FirstName, LastName, Address, ZipCode, City, Country, BirthDate, Email, Username 
+          FROM [User] WHERE Username = @Username", new { Username = userLoggedIn });
+
+    if (user != null)
+    {
+        Console.WriteLine(
+        $"{"Id",-5} {"First Name",-15} {"Last Name",-15} {"Address",-20} {"Zip code",-10} {"City",-15} {"Country",-15} " + // måste ju ha city
+        $"{"Birthdate",-15} {"Email",-25} {"Username",-15}");
+        Console.WriteLine(new string('-', 180));
+
+        
+            string dateOnlyBirthDate = user.BirthDate.ToString("yyyy-MM-dd");
+            Console.WriteLine(
+            $"{user.Id,-5} {user.FirstName,-15} {user.LastName,-15} {user.Address,-20} {user.ZipCode,-10} {user.City,-15} {user.Country,-15} " +
+            $"{dateOnlyBirthDate,-15} {user.Email,-25} {user.Username,-15}");
+        
+    }
+    else
+    {
+        Console.WriteLine("User not found.");
+    }
+    }   
 
     public IEnumerable<User> GetAllUsers()
     {
@@ -63,8 +86,6 @@ class DatabaseManager
     public void AddUser(string firstName, string lastName, string address, string zipCode, string city, string country, DateTime birthDate, string email, string username, byte[] passwordHash, byte[] passwordSalt)
     {
 
-        Console.WriteLine("Hash length: " + passwordHash.Length); // Borde vara 32 bytes för SHA-256
-        Console.WriteLine("Salt length: " + passwordSalt.Length);
         using IDbConnection connection = Connect();
 
         string query = @"INSERT INTO [User] 
@@ -73,11 +94,20 @@ class DatabaseManager
         (@FirstName, @LastName, @Address, @ZipCode, @City, @Country, @BirthDate, @Email, @Username, @PasswordHash, @PasswordSalt)";
 
 
-        //birthDate.ToString("yyyy-MM-dd"), // Konvertera `DateOnly` till korrekt format
+        //birthDate.ToString("yyyy-MM-dd")
         connection.Execute(query, new
         {
-            FirstName = firstName, LastName = lastName, Address = address, ZipCode = zipCode, City = city, Country = country,
-            BirthDate = birthDate, Email = email, Username = username, PasswordHash = passwordHash, PasswordSalt = passwordSalt
+            FirstName = firstName,
+            LastName = lastName,
+            Address = address,
+            ZipCode = zipCode,
+            City = city,
+            Country = country,
+            BirthDate = birthDate,
+            Email = email,
+            Username = username,
+            PasswordHash = passwordHash,
+            PasswordSalt = passwordSalt
         });
         Console.WriteLine("testing testing");
 
@@ -92,26 +122,17 @@ class DatabaseManager
         string query = $" UPDATE [User] SET Name = '{LastName}', Email = '{email}', Username = '{username}' WHERE Id = {id}";
         connection.Execute(query);
     }
-    public IEnumerable<User> VerifyPass(string inputUsername, string inputPassword)
-    {
-        // Hämta ut alla User från databasen till en lista
-        using IDbConnection connection = Connect();
-        IEnumerable<User> hash = connection.Query<User>("SELECT PasswordHash, PasswordSalt FROM [User] WHERE Username = "); // inte *?
-        Console.WriteLine();
-
-    }
-    // TODO
-    public bool IsAdmin(string username)
+    public bool VerifyUser(string inputUsername, string inputPassword, out bool isAdmin)
     {
         using IDbConnection connection = Connect();
-        string query = "SELECT IsAdmin FROM [User] WHERE Username = @Username";
-        bool isAdmin = connection.QuerySingleOrDefault<bool>(query, new { Username = username });
-        if (isAdmin == null)
-        {
-            throw new InvalidOperationException("Användaren hittades inte");
-        }
-        return isAdmin;
+        var verify = connection.QuerySingleOrDefault<(bool IsAdmin, byte[] PasswordHash, byte[] PasswordSalt)>("SELECT IsAdmin, PasswordHash, PasswordSalt FROM [User] WHERE Username = @Username", new { Username = inputUsername});
+        isAdmin = verify.IsAdmin;
+        byte[] passwordHash = verify.PasswordHash;
+        byte[] passwordSalt = verify.PasswordSalt;
+        byte[] inputHash = Misc.HashPasswordWithSalt(inputPassword, passwordSalt);
+        return isAdmin || passwordHash.SequenceEqual(inputHash);
     }
+    
     // WORK IN PROGRESS
     public IEnumerable<Product> SearchProducts(string searchOptionChoice, string searchInput)
     {

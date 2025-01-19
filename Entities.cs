@@ -1,5 +1,5 @@
 namespace ProjektDb;
-class User
+public class User
 {
     public int Id { get; set; }
     public string FirstName { get; set; }
@@ -12,12 +12,13 @@ class User
     public string Email { get; set; }
     public string Username { get; set; } // unik?
     //public string Password { get; set; } // dölj när salt är fixat
-    public string Salt { get; set; } //generera salt
+    public byte[] passwordHash { get; set; } 
+    public byte[] passwordSalt { get; set; }
     public bool IsAdmin { get; set; } //TODO adminläge 
     //public datetime DateOfRegistry { get; set; } ska man ha detta?
 }
 
-class Product()
+public class Product()
 {
     public int Id { get; set; }
     public string ArtistName { get; set; } 
