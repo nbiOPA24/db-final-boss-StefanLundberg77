@@ -13,25 +13,26 @@ public class DatabaseManager
         IDbConnection connection = new SqlConnection(connectionString);
         return connection;
     }
-    public IEnumerable<Product> GetAllProducts()
+    public IEnumerable<Product> GetAllProducts(bool userLoggedInIsAdmin)
     {
         // Hämta ut alla produkter från databasen till en lista
         using IDbConnection connection = Connect();
         IEnumerable<Product> products = connection.Query<Product>("SELECT * FROM Product");
         Console.WriteLine();
 
-        // Rubrik med skiljelinje
+        // Rubrik med skiljelinje och admincheck för inpris
         Console.WriteLine(
-        $"{"Id",-5} {"Artist",-20} {"Album",-20} {"Record Company",-20} {"Release Date",-15} {"Genre",-10} {"Format",-10} " +
-        $"{"Sell Price",-12} {"Purchase Price",-15} {"Used",-8} {"Condition",-12} {"Stock",-10} {"Description",-15} "); // TODO bara visa Purchase price i adminläge
-        Console.WriteLine(new string('-', 220));
+        $"{"Id",-5} {"Artist",-20} {"Album",-20} {"Record Company",-20} {"Release Date",-15} {"Genre",-20} {"Format",-10} " +
+        $"{"Sell Price",-12} {(userLoggedInIsAdmin ? "Purchase Price" : ""),-15} {"Used",-8} {"Condition",-12} {"Stock",-10} {"Description",-15} "); // TODO bara visa Purchase price i adminläge
+
+        Console.WriteLine(new string('-', 225));
 
         // Listar upp tabellen med yes/no istället för true/false i begagnad. TODO visa inte inköpspris om inte user är admin
         foreach (Product p in products)
         {
             Console.WriteLine(
-            $"{p.Id,-5} {p.ArtistName,-20} {p.AlbumName,-20} {p.RecordLabel,-20} {p.ReleaseDate,-15} {p.Genre,-10} {p.Format,-10} " +
-            $"{p.Price,-12:F2} {p.PurchasePrice,-15:F2} {(p.Used ? "Yes" : "No"),-8} {p.Condition,-12} {p.StockBalance,-10} {p.Description,-15} ");
+            $"{p.Id,-5} {p.ArtistName,-20} {p.AlbumName,-20} {p.RecordLabel,-20} {p.ReleaseDate,-15} {p.Genre,-20} {p.Format,-10} " +
+            $"{p.Price,-12:F2} {(userLoggedInIsAdmin ? $"{p.PurchasePrice:F2}" : ""),-15} {(p.Used ? "Yes" : "No"),-8} {p.Condition,-12} {p.StockBalance,-10} {p.Description,-15} ");
         }
         return products;
     }
@@ -89,7 +90,7 @@ public class DatabaseManager
     public void AddUser(string firstName, string lastName, string address, string zipCode, string city, string country, DateTime birthDate, string email, string username, byte[] passwordHash, byte[] passwordSalt)
     {
         using IDbConnection connection = Connect();
-        
+
         // ev. lägga till transaction
         string query = @"INSERT INTO [User] 
         (FirstName, LastName, Address, ZipCode, City, Country, BirthDate, Email, Username, PasswordHash, PasswordSalt) 
@@ -217,11 +218,36 @@ public class DatabaseManager
     }
 
     // WORK IN PROGRESS
-    public IEnumerable<Product> SearchProducts(string searchOptionChoice, string searchInput)
+    public IEnumerable<Product> SearchProducts(string searchOptionChoice, string searchInput, bool userLoggedInIsAdmin)
     {
         using IDbConnection connection = Connect();
-        IEnumerable<Product> searchResult = connection.Query<Product>($"SELECT '{searchOptionChoice}' FROM Product where ArtistName = '{searchInput}'");
-        Console.WriteLine();
+        // Kontrollera om det är en sökning på nya/begagnade produkter
+        string query = $"SELECT Id, ArtistName, AlbumName, RecordLabel, ReleaseDate, Genre, Format, Price, PurchasePrice, Used, StockBalance, Condition, Description " +
+                       $"FROM Product WHERE {searchOptionChoice} LIKE @SearchInput";
+
+        IEnumerable<Product> searchResult = connection.Query<Product>(query, new { SearchInput = searchInput + "%" });
+
+        // Kontrollera om inga resultat hittas
+        if (!searchResult.Any())
+        {
+            Console.WriteLine("No products found matching your search.");
+            return Enumerable.Empty<Product>();
+        }
+
+        // Rubrik med skiljelinje
+        Console.WriteLine(
+        $"{"Id",-5} {"Artist",-20} {"Album",-20} {"Record Company",-20} {"Release Date",-15} {"Genre",-20} {"Format",-10} " +
+        $"{"Sell Price",-12} {(userLoggedInIsAdmin ? "Purchase Price" : ""),-15} {"Used",-8} {"Condition",-12} {"Stock",-10} {"Description",-15} "); // TODO bara visa Purchase price i adminläge
+
+        Console.WriteLine(new string('-', 225));
+
+        // Listar upp tabellen med yes/no istället för true/false i begagnad. TODO visa inte inköpspris om inte user är admin
+        foreach (Product p in searchResult)
+        {
+            Console.WriteLine(
+            $"{p.Id,-5} {p.ArtistName,-20} {p.AlbumName,-20} {p.RecordLabel,-20} {p.ReleaseDate,-15} {p.Genre,-20} {p.Format,-10} " +
+            $"{p.Price,-12:F2} {(userLoggedInIsAdmin ? $"{p.PurchasePrice:F2}" : ""),-15} {(p.Used ? "Yes" : "No"),-8} {p.Condition,-12} {p.StockBalance,-10} {p.Description,-15} ");
+        }
         return searchResult;
     }
 }
